@@ -29,7 +29,7 @@ public class UserController {
         return userService.getList();
     }
 
-    @PostMapping("/create")
+    @PostMapping("")
     public User createUser(
             @RequestBody User user
     ) {

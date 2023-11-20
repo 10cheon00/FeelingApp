@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -22,7 +23,15 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User createUser(User user) {
+    public User createUser(User user) throws IllegalArgumentException {
+        userRepository.findByName(user.getName()).ifPresent(m -> {
+
+            throw new IllegalArgumentException("Already Exists name");
+        });
         return userRepository.save(user);
+    }
+
+    public Optional<User> getUser(User user) {
+        return userRepository.findByName(user.getName());
     }
 }

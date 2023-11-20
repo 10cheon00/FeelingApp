@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -30,6 +31,12 @@ public class FeelingAppUserTest {
 
     @Test
     public void 중복된_유저_생성시_실패() {
+        User user = new User("A", "AAAAAAAAA");
+        userService.createUser(user);
 
+        User sameNameUser = new User("A", "AAAAAAAA");
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
+            userService.createUser(sameNameUser);
+        });
     }
 }

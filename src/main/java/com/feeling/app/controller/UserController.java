@@ -3,9 +3,7 @@ package com.feeling.app.controller;
 import com.feeling.app.entity.User;
 import com.feeling.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -13,7 +11,7 @@ import java.util.List;
 // 그럴 때 함수에 @ResponseBody를 사용한다.
 // 귀찮으니까, Data만 반환할 컨트롤러는 @RestController만 써도 된다.
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/v1/users")
 public class UserController {
     @Autowired
     private final UserService userService;
@@ -22,8 +20,19 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/")
+    /**
+     * db testing
+     * TODO: this method should be removed.
+     */
+    @GetMapping("")
     public List<User> getUserList() {
         return userService.getList();
+    }
+
+    @PostMapping("/create")
+    public User createUser(
+            @RequestBody User user
+    ) {
+        return userService.createUser(user);
     }
 }

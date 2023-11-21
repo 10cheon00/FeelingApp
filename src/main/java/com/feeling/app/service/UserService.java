@@ -31,7 +31,6 @@ public class UserService {
 
     public User createUser(User user) throws IllegalArgumentException {
         userRepository.findByName(user.getName()).ifPresent(m -> {
-
             throw new IllegalArgumentException("Already Exists name");
         });
         return userRepository.save(user);

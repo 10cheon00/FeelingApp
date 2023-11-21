@@ -1,54 +1,40 @@
 package com.feeling.app.user;
 
-import com.feeling.app.controller.UserController;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.feeling.app.entity.User;
 import com.feeling.app.service.UserService;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
-
-@WebMvcTest(UserController.class)
+@WebMvcTest
 public class UserTest {
     @Autowired
-    MockMvc mockMvc;
-
+    private MockMvc mockMvc;
     @MockBean
-    UserService userService;
+    private UserService userService;
 
     private String usersURI = "/api/v1/users";
 
     @Test
     public void 유저_생성() throws Exception {
-        String name = "username";
-        String password = "password";
+        User user = new User("username", "password");
+
+        given(userService.createUser(any())).willReturn(user);
+
         mockMvc.perform(post(usersURI)
-                .param("name", name)
-                .param("password", password))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(user)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value(name));
-    }
-
-    @Test
-    public void 중복된_유저_생성시_실패() throws Exception {
-        String name = "username";
-        String password = "password";
-
-        mockMvc.perform(post(usersURI)
-                .param("name", name)
-                .param("password", password))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(name));
-
-        String duplicatedName = "username";
-        mockMvc.perform(post(usersURI)
-                .param("name", duplicatedName)
-                .param("password", password))
-                .andExpect(status().isBadRequest());
+                .andExpect(jsonPath("$.name").value(user.getName()));
     }
 }

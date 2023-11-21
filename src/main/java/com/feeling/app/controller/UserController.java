@@ -2,10 +2,14 @@ package com.feeling.app.controller;
 
 import com.feeling.app.entity.User;
 import com.feeling.app.service.UserService;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.SecretKey;
 import java.util.List;
+import java.util.Optional;
 
 // @Controller는 View를 반환한다. 그런데 Data만 반환해야할 때가 있다.
 // 그럴 때 함수에 @ResponseBody를 사용한다.
@@ -34,5 +38,14 @@ public class UserController {
             @RequestBody User user
     ) {
         return userService.createUser(user);
+    }
+
+    @PostMapping("/login/jwttoken")
+    public ResponseEntity<String> loginWithNameAndPassword(@RequestParam String name, @RequestParam String password) {
+        if (userService.validate(name, password)) {
+            return ResponseEntity.ok().body(userService.login(name, password));
+        }
+        // todo: 에러 메시지는 한 곳에서 보관하기
+        return ResponseEntity.badRequest().body("Not validated credential.");
     }
 }

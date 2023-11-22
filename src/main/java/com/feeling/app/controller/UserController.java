@@ -50,9 +50,12 @@ public class UserController {
     }
 
     @PostMapping("/login/jwttoken")
-    public ResponseEntity<String> loginWithNameAndPassword(@RequestParam String name, @RequestParam String password) {
-        if (userService.validate(name, password)) {
-            return ResponseEntity.ok().body(userService.login(name, password));
+    public ResponseEntity<String> loginWithNameAndPassword(
+            @RequestBody User user) {
+        if (userService.validate(user.getName(), user.getPassword())) {
+            return ResponseEntity
+                    .ok()
+                    .body(userService.login(user.getName(), user.getPassword()));
         }
         // todo: 에러 메시지는 한 곳에서 보관하기
         return ResponseEntity

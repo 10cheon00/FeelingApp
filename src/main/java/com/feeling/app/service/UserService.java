@@ -2,27 +2,22 @@ package com.feeling.app.service;
 
 import com.feeling.app.entity.User;
 import com.feeling.app.repository.UserRepository;
-import com.feeling.app.util.JwtUtil;
+import com.feeling.app.util.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class UserService {
-    @Value("${jwt.secret}")
-    private String secretKey;
-
-    private Long expiredMs = 1000 * 60 * 60L;
+    private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
 
     @Autowired
-    private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
+        this.jwtProvider = jwtProvider;
     }
 
     public List<User> getList() {
@@ -45,7 +40,7 @@ public class UserService {
     }
 
     public String login(String name, String password) {
-        return JwtUtil.createJwt(name, secretKey, expiredMs);
+        return jwtProvider.createJwt(name);
     }
 
     public boolean validate(String name, String password) {

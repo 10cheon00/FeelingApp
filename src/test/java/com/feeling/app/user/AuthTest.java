@@ -2,7 +2,7 @@ package com.feeling.app.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.feeling.app.entity.User;
-import com.feeling.app.util.JwtUtil;
+import com.feeling.app.util.JwtProvider;
 import io.jsonwebtoken.Jwts;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -21,9 +22,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@TestPropertySource(locations = "classpath:test.properties")
 public class AuthTest {
     @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    JwtProvider jwtProvider;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -61,11 +66,33 @@ public class AuthTest {
 
     @Test
     public void 로그인_성공으로_JWT_토큰_획득() throws Exception {
+        User user = new User("A", "AAAAAAAA");
+        String userCredential = objectMapper.writeValueAsString(user);
+        // create success
+        mockMvc.perform(post(usersURI)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(userCredential))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value(user.getName()));
+
+        // login success
+        MvcResult mvcResult = mockMvc.perform(post(jwtLoginURI)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(userCredential))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // verify token
+
+        String token = mvcResult.getResponse().getContentAsString();
+        jwtProvider.validate(token);
+
+//        assertThat(subject).isEqualTo(user.getName());
     }
 
 
     @Test
-    public void 로그인으로_얻은_JWT_토큰_만료시간() {
+    public void 로그인으로_얻은_JWT_토큰_만료() {
 
     }
 

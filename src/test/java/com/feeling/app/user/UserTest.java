@@ -22,7 +22,7 @@ public class UserTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private String usersURI = "/api/v1/users";
+    private final String usersURI = "/api/v1/users";
 
     @Test
     public void 유저_생성() throws Exception {

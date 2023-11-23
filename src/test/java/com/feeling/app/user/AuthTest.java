@@ -83,13 +83,11 @@ public class AuthTest {
                 .andReturn();
 
         // verify token
-
         String token = mvcResult.getResponse().getContentAsString();
         jwtProvider.validate(token);
-
-//        assertThat(subject).isEqualTo(user.getName());
+        String subject = jwtProvider.getSubject(token);
+        assertThat(subject).isEqualTo(user.getName());
     }
-
 
     @Test
     public void 로그인으로_얻은_JWT_토큰_만료() {

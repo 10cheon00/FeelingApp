@@ -48,4 +48,18 @@ public class JwtProvider {
             throw e;
         }
     }
+
+    public String getSubject(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getSubject();
+        }
+        catch (Exception e){
+            throw e;
+        }
+    }
 }

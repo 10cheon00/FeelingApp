@@ -1,8 +1,7 @@
 package com.feeling.app.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.feeling.app.entity.User;
-import com.feeling.app.service.UserService;
+import com.feeling.app.user.entity.User;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.feeling.app.entity;
+package com.feeling.app.user.entity;
 
 import jakarta.persistence.*;
 

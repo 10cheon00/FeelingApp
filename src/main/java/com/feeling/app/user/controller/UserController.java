@@ -1,18 +1,14 @@
-package com.feeling.app.controller;
+package com.feeling.app.user.controller;
 
-import com.feeling.app.entity.User;
-import com.feeling.app.service.UserService;
-import io.jsonwebtoken.Jwts;
+import com.feeling.app.user.entity.User;
+import com.feeling.app.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.crypto.SecretKey;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 
 // @Controller는 View를 반환한다. 그런데 Data만 반환해야할 때가 있다.
 // 그럴 때 함수에 @ResponseBody를 사용한다.

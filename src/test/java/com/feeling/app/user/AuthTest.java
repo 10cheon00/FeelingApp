@@ -1,9 +1,9 @@
 package com.feeling.app.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.feeling.app.entity.User;
+import com.feeling.app.user.entity.User;
+import com.feeling.app.util.JwtDto;
 import com.feeling.app.util.JwtProvider;
-import io.jsonwebtoken.Jwts;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

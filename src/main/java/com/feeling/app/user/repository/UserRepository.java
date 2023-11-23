@@ -1,7 +1,6 @@
-package com.feeling.app.repository;
+package com.feeling.app.user.repository;
 
-import com.feeling.app.entity.User;
-import jakarta.persistence.EntityManager;
+import com.feeling.app.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

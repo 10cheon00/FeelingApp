@@ -2,7 +2,6 @@ package com.feeling.app.user.service;
 
 import com.feeling.app.user.entity.User;
 import com.feeling.app.user.repository.UserRepository;
-import com.feeling.app.util.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

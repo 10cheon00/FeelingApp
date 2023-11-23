@@ -2,8 +2,8 @@ package com.feeling.app.user.controller;
 
 import com.feeling.app.user.entity.User;
 import com.feeling.app.user.service.AuthService;
-import com.feeling.app.util.JwtDto;
-import com.feeling.app.util.JwtProvider;
+import com.feeling.app.user.util.JwtDto;
+import com.feeling.app.user.util.JwtProvider;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

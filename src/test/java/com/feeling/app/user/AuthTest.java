@@ -2,8 +2,8 @@ package com.feeling.app.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.feeling.app.user.entity.User;
-import com.feeling.app.util.JwtDto;
-import com.feeling.app.util.JwtProvider;
+import com.feeling.app.user.util.JwtDto;
+import com.feeling.app.user.util.JwtProvider;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,8 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

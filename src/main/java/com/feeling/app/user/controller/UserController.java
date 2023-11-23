@@ -1,6 +1,7 @@
 package com.feeling.app.user.controller;
 
 import com.feeling.app.user.entity.User;
+import com.feeling.app.user.service.AuthService;
 import com.feeling.app.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -16,11 +17,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
-    @Autowired
     private final UserService userService;
+    private final AuthService authService;
 
-    public UserController(UserService userService) {
+    @Autowired
+    public UserController(UserService userService, AuthService authService) {
         this.userService = userService;
+        this.authService = authService;
     }
 
     /**
@@ -48,10 +51,10 @@ public class UserController {
     @PostMapping("/login/jwttoken")
     public ResponseEntity<String> loginWithNameAndPassword(
             @RequestBody User user) {
-        if (userService.validate(user.getName(), user.getPassword())) {
+        if (authService.validate(user.getName(), user.getPassword())) {
             return ResponseEntity
                     .ok()
-                    .body(userService.login(user.getName(), user.getPassword()));
+                    .body(authService.login(user.getName(), user.getPassword()));
         }
         // todo: 에러 메시지는 한 곳에서 보관하기
         return ResponseEntity

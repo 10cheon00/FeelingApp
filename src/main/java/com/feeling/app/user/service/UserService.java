@@ -38,13 +38,4 @@ public class UserService {
     public Optional<User> getUser(String name) {
         return userRepository.findByName(name);
     }
-
-    public String login(String name, String password) {
-        return jwtProvider.createJwt(name);
-    }
-
-    public boolean validate(String name, String password) {
-        Optional<User> user = userRepository.findByName(name);
-        return user.filter(value -> value.getPassword().equals(password)).isPresent();
-    }
 }

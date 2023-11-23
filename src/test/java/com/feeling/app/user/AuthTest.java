@@ -33,7 +33,7 @@ public class AuthTest {
     ObjectMapper objectMapper = new ObjectMapper();
 
     private final String usersURI = "/api/v1/users";
-    private final String jwtLoginURI = "/api/v1/users/login/jwttoken";
+    private final String jwtLoginURI = "/api/v1/users/login/jwt";
 
     @Test
     public void 로그인_실패() throws Exception {
@@ -83,9 +83,12 @@ public class AuthTest {
                 .andReturn();
 
         // verify token
-        String token = mvcResult.getResponse().getContentAsString();
-        jwtProvider.validate(token);
-        String subject = jwtProvider.getSubject(token);
+        String json = mvcResult.getResponse().getContentAsString();
+        JwtDto jwtDto = objectMapper.readValue(json, JwtDto.class);
+        jwtProvider.validate(jwtDto.getVerifyToken());
+        jwtProvider.validate(jwtDto.getRefreshToken());
+
+        String subject = jwtProvider.getSubject(jwtDto.getVerifyToken());
         assertThat(subject).isEqualTo(user.getName());
     }
 

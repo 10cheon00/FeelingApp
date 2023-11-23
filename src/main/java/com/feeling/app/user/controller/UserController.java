@@ -1,15 +1,15 @@
-package com.feeling.app.controller;
+package com.feeling.app.user.controller;
 
-import com.feeling.app.entity.User;
-import com.feeling.app.service.UserService;
-import io.jsonwebtoken.Jwts;
+import com.feeling.app.user.entity.User;
+import com.feeling.app.user.service.AuthService;
+import com.feeling.app.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.crypto.SecretKey;
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 // @Controller는 View를 반환한다. 그런데 Data만 반환해야할 때가 있다.
 // 그럴 때 함수에 @ResponseBody를 사용한다.
@@ -17,9 +17,9 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
-    @Autowired
     private final UserService userService;
 
+    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -34,18 +34,15 @@ public class UserController {
     }
 
     @PostMapping("")
-    public User createUser(
+    public ResponseEntity<User> createUser(
             @RequestBody User user
-    ) {
-        return userService.createUser(user);
-    }
-
-    @PostMapping("/login/jwttoken")
-    public ResponseEntity<String> loginWithNameAndPassword(@RequestParam String name, @RequestParam String password) {
-        if (userService.validate(name, password)) {
-            return ResponseEntity.ok().body(userService.login(name, password));
+    ) throws Exception {
+        if(userService.getUser(user).isPresent()) {
+            throw new IllegalArgumentException("Already exists username.");
         }
-        // todo: 에러 메시지는 한 곳에서 보관하기
-        return ResponseEntity.badRequest().body("Not validated credential.");
+        return ResponseEntity
+                .created(URI.create("/api/v1/users"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(userService.createUser(user));
     }
 }

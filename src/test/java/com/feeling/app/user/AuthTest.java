@@ -15,6 +15,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Date;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -66,7 +68,7 @@ public class AuthTest {
                 .andExpect(status().isBadRequest());
 
         // failed with wrong password
-        User wrongPassword = new User("B", "AAAAAAAA");
+        User wrongPassword = new User("A", "BBBBBBBB");
         String wrongPasswordCredential = objectMapper.writeValueAsString(wrongPassword);
         mockMvc.perform(post(jwtLoginURI)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -119,7 +121,11 @@ public class AuthTest {
 
     @Test
     public void 만료된_JWT_토큰_갱신_실패() throws Exception {
-
+        String expiredRefreshToken = jwtProvider.createJwt(user.getName(), -1000L);
+        mockMvc.perform(post(jwtRefreshURI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(expiredRefreshToken))
+                .andExpect(status().isBadRequest());
     }
 
     public MvcResult login() throws Exception {

@@ -32,14 +32,18 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<JwtDto> foo(@RequestBody String refreshToken) {
-        if (jwtProvider.validate(refreshToken)) {
-            String name = jwtProvider.getSubject(refreshToken);
-            return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(jwtProvider.createJwtDto(name));
+    public ResponseEntity<JwtDto> refreshToken(
+            @RequestBody String refreshToken) throws Exception {
+        try {
+            jwtProvider.validate(refreshToken);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("not validate token");
         }
-        throw new IllegalArgumentException("asdf");
+
+        String name = jwtProvider.getSubject(refreshToken);
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(jwtProvider.createJwtDto(name));
     }
 }

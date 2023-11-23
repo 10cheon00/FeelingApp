@@ -26,20 +26,21 @@ public class JwtProvider {
         this.refreshTokenExpiredMs = refreshTokenExpiredMs;
     }
 
-    public JwtDto createJwt(String name) {
-        String verifyToken = Jwts.builder()
-                .subject(name)
-                .expiration(new Timestamp(new Date().getTime() + verifyTokenExpiredMs))
-                .signWith(getSigningKey())
-                .compact();
-
-        String refreshToken = Jwts.builder()
-                .subject(name)
-                .expiration(new Timestamp(new Date().getTime() + refreshTokenExpiredMs))
-                .signWith(getSigningKey())
-                .compact();
+    public JwtDto createJwtDto(String name) {
+        String verifyToken = createJwt(name, verifyTokenExpiredMs);
+        String refreshToken = createJwt(name, refreshTokenExpiredMs);
 
         return new JwtDto(verifyToken, refreshToken);
+    }
+
+    public String createJwt(String name, Long expiredMs) {
+        Long currentMs = new Date().getTime();
+
+        return Jwts.builder()
+                .subject(name)
+                .expiration(new Timestamp(currentMs + expiredMs))
+                .signWith(getSigningKey())
+                .compact();
     }
 
     public SecretKey getSigningKey() {

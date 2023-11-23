@@ -21,11 +21,11 @@ public class AuthController {
 
     @PostMapping("")
     public ResponseEntity<JwtDto> loginWithNameAndPassword(
-            @RequestBody User user) throws Exception {
+            @RequestBody User user) {
         if (authService.validate(user.getName(), user.getPassword())) {
             return ResponseEntity
                     .ok()
-                    .body(authService.login(user.getName(), user.getPassword()));
+                    .body(jwtProvider.createJwtDto(user.getName()));
         }
         // todo: 에러 메시지는 한 곳에서 보관하기
         throw new IllegalArgumentException("not validated");
@@ -38,7 +38,7 @@ public class AuthController {
             return ResponseEntity
                     .ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(jwtProvider.createJwt(name));
+                    .body(jwtProvider.createJwtDto(name));
         }
         throw new IllegalArgumentException("asdf");
     }

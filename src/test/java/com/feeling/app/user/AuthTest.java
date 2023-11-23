@@ -15,6 +15,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Date;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -93,8 +95,31 @@ public class AuthTest {
     }
 
     @Test
-    public void 로그인으로_얻은_JWT_토큰_만료() {
+    public void 로그인으로_얻은_JWT_토큰_만료() throws Exception {
+        // login success
+        MvcResult mvcResult = mockMvc.perform(post(jwtLoginURI)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(userCredential))
+                .andExpect(status().isOk())
+                .andReturn();
 
+        String json = mvcResult.getResponse().getContentAsString();
+        JwtDto jwtDto = objectMapper.readValue(json, JwtDto.class);
+        jwtProvider.validate(jwtDto.getVerifyToken());
+
+        Long expiredMs = jwtProvider.getTokenExpiredMs(jwtDto.getVerifyToken());
+        Long expiredTime = new Date().getTime() + jwtProvider.getVerifyTokenExpiredMs();
+        assertThat(expiredMs).isLessThan(expiredTime);
+
+        // just print for watch expired value
+        System.out.printf("VerifyToken expired at %s, %d\n", new Date(expiredMs), expiredMs);
+
+        expiredMs = jwtProvider.getTokenExpiredMs(jwtDto.getRefreshToken());
+        expiredTime = new Date().getTime() + jwtProvider.getRefreshTokenExpiredMs();
+        assertThat(expiredMs).isLessThan(expiredTime);
+
+        // just print for watch expired value
+        System.out.printf("RefreshToken expired at %s, %d\n", new Date(expiredMs), expiredMs);
     }
 
     @Test

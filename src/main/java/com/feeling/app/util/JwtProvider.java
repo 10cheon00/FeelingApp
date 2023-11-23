@@ -72,4 +72,27 @@ public class JwtProvider {
             throw e;
         }
     }
+
+    public Long getTokenExpiredMs(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getExpiration()
+                    .getTime();
+        }
+        catch (Exception e){
+            throw e;
+        }
+    }
+
+    public Long getVerifyTokenExpiredMs() {
+        return verifyTokenExpiredMs;
+    }
+
+    public Long getRefreshTokenExpiredMs() {
+        return refreshTokenExpiredMs;
+    }
 }

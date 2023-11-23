@@ -1,5 +1,7 @@
 package com.feeling.app.util;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -50,42 +52,37 @@ public class JwtProvider {
 
     public boolean validate(String token) {
         try {
-            Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token);
+            getJws(token);
             return true;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
 
     public String getSubject(String token) {
         try {
-            return Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token)
+            return getJws(token)
                     .getPayload()
                     .getSubject();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
 
+    private Jws<Claims> getJws(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token);
+    }
+
     public Long getTokenExpiredMs(String token) {
         try {
-            return Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token)
+            return getJws(token)
                     .getPayload()
                     .getExpiration()
                     .getTime();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }

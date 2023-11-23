@@ -15,8 +15,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.Date;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -79,11 +77,7 @@ public class AuthTest {
     @Test
     public void 로그인_성공으로_JWT_토큰_획득() throws Exception {
         // login success
-        MvcResult mvcResult = mockMvc.perform(post(jwtLoginURI)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(userCredential))
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult = login();
 
         // verify token
         String json = mvcResult.getResponse().getContentAsString();
@@ -96,44 +90,12 @@ public class AuthTest {
     }
 
     @Test
-    public void 로그인으로_얻은_JWT_토큰_만료() throws Exception {
-        // login success
-        MvcResult mvcResult = mockMvc.perform(post(jwtLoginURI)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(userCredential))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String json = mvcResult.getResponse().getContentAsString();
-        JwtDto jwtDto = objectMapper.readValue(json, JwtDto.class);
-        jwtProvider.validate(jwtDto.getVerifyToken());
-
-        Long expiredMs = jwtProvider.getTokenExpiredMs(jwtDto.getVerifyToken());
-        Long expiredTime = new Date().getTime() + jwtProvider.getVerifyTokenExpiredMs();
-        assertThat(expiredMs).isLessThan(expiredTime);
-
-        // just print for watch expired value
-        System.out.printf("VerifyToken expired at %s, %d\n", new Date(expiredMs), expiredMs);
-
-        expiredMs = jwtProvider.getTokenExpiredMs(jwtDto.getRefreshToken());
-        expiredTime = new Date().getTime() + jwtProvider.getRefreshTokenExpiredMs();
-        assertThat(expiredMs).isLessThan(expiredTime);
-
-        // just print for watch expired value
-        System.out.printf("RefreshToken expired at %s, %d\n", new Date(expiredMs), expiredMs);
-    }
-
-    @Test
     public void JWT_토큰_갱신() throws Exception {
-        // login success
-        MvcResult mvcResult = mockMvc.perform(post(jwtLoginURI)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(userCredential))
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult = login();
 
         String json = mvcResult.getResponse().getContentAsString();
         JwtDto jwtDto = objectMapper.readValue(json, JwtDto.class);
+        Long previousExpiredMs = jwtProvider.getTokenExpiredMs(jwtDto.getVerifyToken());
 
         mvcResult = mockMvc.perform(post(jwtRefreshURI)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -143,16 +105,28 @@ public class AuthTest {
 
         json = mvcResult.getResponse().getContentAsString();
         jwtDto = objectMapper.readValue(json, JwtDto.class);
-
         jwtProvider.validate(jwtDto.getVerifyToken());
         jwtProvider.validate(jwtDto.getRefreshToken());
 
+        // check subject of new token is same as user name
         String subject = jwtProvider.getSubject(jwtDto.getVerifyToken());
         assertThat(subject).isEqualTo(user.getName());
+
+        // check expired ms of new tokne is greater or equal than previous token's
+        Long currentExpiredMs = jwtProvider.getTokenExpiredMs(jwtDto.getVerifyToken());
+        assertThat(currentExpiredMs).isGreaterThanOrEqualTo(previousExpiredMs);
     }
 
     @Test
-    public void 갱신시간이_만료된_JWT_토큰_갱신_실패() {
+    public void 만료된_JWT_토큰_갱신_실패() throws Exception {
 
+    }
+
+    public MvcResult login() throws Exception {
+        return mockMvc.perform(post(jwtLoginURI)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(userCredential))
+                .andExpect(status().isOk())
+                .andReturn();
     }
 }

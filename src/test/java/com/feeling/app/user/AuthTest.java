@@ -5,6 +5,7 @@ import com.feeling.app.user.entity.User;
 import com.feeling.app.util.JwtDto;
 import com.feeling.app.util.JwtProvider;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,23 +31,31 @@ public class AuthTest {
     @Autowired
     JwtProvider jwtProvider;
 
-    ObjectMapper objectMapper = new ObjectMapper();
-
     private final String usersURI = "/api/v1/users";
     private final String jwtLoginURI = "/api/v1/users/login/jwt";
 
-    @Test
-    public void 로그인_실패() throws Exception {
-        User user = new User("A", "AAAAAAAA");
-        String userCredential = objectMapper.writeValueAsString(user);
-        // create success
+    ObjectMapper objectMapper;
+    private final User user;
+    private final String userCredential;
+
+    public AuthTest() throws Exception {
+         objectMapper = new ObjectMapper();
+         user = new User("A", "AAAAAAAA");
+         userCredential = objectMapper.writeValueAsString(user);
+    }
+
+    @BeforeEach
+    public void 유저_생성() throws Exception {
+        // user create success
         mockMvc.perform(post(usersURI)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userCredential))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value(user.getName()));
+    }
 
-        // but failed to login with wrong credential
+    @Test
+    public void 로그인_실패() throws Exception {
         // failed with wrong username
         User wrongName = new User("B", "AAAAAAAA");
         String wrongNameCredential = objectMapper.writeValueAsString(wrongName);
@@ -66,15 +75,6 @@ public class AuthTest {
 
     @Test
     public void 로그인_성공으로_JWT_토큰_획득() throws Exception {
-        User user = new User("A", "AAAAAAAA");
-        String userCredential = objectMapper.writeValueAsString(user);
-        // create success
-        mockMvc.perform(post(usersURI)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(userCredential))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value(user.getName()));
-
         // login success
         MvcResult mvcResult = mockMvc.perform(post(jwtLoginURI)
                         .contentType(MediaType.APPLICATION_JSON)

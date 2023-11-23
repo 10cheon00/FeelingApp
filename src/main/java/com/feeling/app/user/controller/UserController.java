@@ -18,12 +18,10 @@ import java.util.List;
 @RequestMapping("/api/v1/users")
 public class UserController {
     private final UserService userService;
-    private final AuthService authService;
 
     @Autowired
-    public UserController(UserService userService, AuthService authService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.authService = authService;
     }
 
     /**
@@ -46,20 +44,5 @@ public class UserController {
                 .created(URI.create("/api/v1/users"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(userService.createUser(user));
-    }
-
-    @PostMapping("/login/jwttoken")
-    public ResponseEntity<String> loginWithNameAndPassword(
-            @RequestBody User user) {
-        if (authService.validate(user.getName(), user.getPassword())) {
-            return ResponseEntity
-                    .ok()
-                    .body(authService.login(user.getName(), user.getPassword()));
-        }
-        // todo: 에러 메시지는 한 곳에서 보관하기
-        return ResponseEntity
-                .badRequest()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body("Not validated credential.");
     }
 }

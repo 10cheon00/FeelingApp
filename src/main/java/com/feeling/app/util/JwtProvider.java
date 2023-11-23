@@ -14,21 +14,31 @@ import java.util.Date;
 public class JwtProvider {
     private final String secretKey;
 
-    private final Long expiredMs;
+    private final Long verifyTokenExpiredMs;
+    private final Long refreshTokenExpiredMs;
 
     public JwtProvider(
             @Value("${jwt.secret}") String secretKey,
-            @Value("${jwt.expiredMs}") Long expiredMs) {
+            @Value("${jwt.verify-token.expired-ms}") Long verifyTokenExpiredMs,
+            @Value("${jwt.refresh-token.expired-ms}") Long refreshTokenExpiredMs) {
         this.secretKey = secretKey;
-        this.expiredMs = expiredMs;
+        this.verifyTokenExpiredMs = verifyTokenExpiredMs;
+        this.refreshTokenExpiredMs = refreshTokenExpiredMs;
     }
 
-    public String createJwt(String name) {
-        return Jwts.builder()
+    public JwtDto createJwt(String name) {
+        String verifyToken = Jwts.builder()
                 .subject(name)
-                .expiration(new Timestamp(new Date().getTime() + expiredMs))
+                .expiration(new Timestamp(new Date().getTime() + verifyTokenExpiredMs))
                 .signWith(getSigningKey())
                 .compact();
+
+        String refreshToken = Jwts.builder()
+                .expiration(new Timestamp(new Date().getTime() + refreshTokenExpiredMs))
+                .signWith(getSigningKey())
+                .compact();
+
+        return new JwtDto(verifyToken, refreshToken);
     }
 
     public SecretKey getSigningKey() {

@@ -2,6 +2,7 @@ package com.feeling.app.user.service;
 
 import com.feeling.app.user.entity.User;
 import com.feeling.app.user.repository.UserRepository;
+import com.feeling.app.util.JwtDto;
 import com.feeling.app.util.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class AuthService {
         this.jwtProvider = jwtProvider;
     }
 
-    public String login(String name, String password) {
+    public JwtDto login(String name, String password) {
         return jwtProvider.createJwt(name);
     }
 

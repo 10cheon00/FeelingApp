@@ -34,6 +34,7 @@ public class JwtProvider {
                 .compact();
 
         String refreshToken = Jwts.builder()
+                .subject(name)
                 .expiration(new Timestamp(new Date().getTime() + refreshTokenExpiredMs))
                 .signWith(getSigningKey())
                 .compact();

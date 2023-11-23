@@ -3,20 +3,20 @@ package com.feeling.app.user.controller;
 import com.feeling.app.user.entity.User;
 import com.feeling.app.user.service.AuthService;
 import com.feeling.app.util.JwtDto;
+import com.feeling.app.util.JwtProvider;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users/login/jwt")
 public class AuthController {
     private final AuthService authService;
+    private final JwtProvider jwtProvider;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JwtProvider jwtProvider) {
         this.authService = authService;
+        this.jwtProvider = jwtProvider;
     }
 
     @PostMapping("")
@@ -29,5 +29,17 @@ public class AuthController {
         }
         // todo: 에러 메시지는 한 곳에서 보관하기
         throw new IllegalArgumentException("not validated");
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtDto> foo(@RequestBody String refreshToken) {
+        if (jwtProvider.validate(refreshToken)) {
+            String name = jwtProvider.getSubject(refreshToken);
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(jwtProvider.createJwt(name));
+        }
+        throw new IllegalArgumentException("asdf");
     }
 }

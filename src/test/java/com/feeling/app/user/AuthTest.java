@@ -35,6 +35,7 @@ public class AuthTest {
 
     private final String usersURI = "/api/v1/users";
     private final String jwtLoginURI = "/api/v1/users/login/jwt";
+    private final String jwtRefreshURI = "/api/v1/users/login/jwt/refresh";
 
     ObjectMapper objectMapper;
     private final User user;
@@ -123,8 +124,31 @@ public class AuthTest {
     }
 
     @Test
-    public void JWT_토큰_갱신() {
+    public void JWT_토큰_갱신() throws Exception {
+        // login success
+        MvcResult mvcResult = mockMvc.perform(post(jwtLoginURI)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(userCredential))
+                .andExpect(status().isOk())
+                .andReturn();
 
+        String json = mvcResult.getResponse().getContentAsString();
+        JwtDto jwtDto = objectMapper.readValue(json, JwtDto.class);
+
+        mvcResult = mockMvc.perform(post(jwtRefreshURI)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jwtDto.getRefreshToken()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        json = mvcResult.getResponse().getContentAsString();
+        jwtDto = objectMapper.readValue(json, JwtDto.class);
+
+        jwtProvider.validate(jwtDto.getVerifyToken());
+        jwtProvider.validate(jwtDto.getRefreshToken());
+
+        String subject = jwtProvider.getSubject(jwtDto.getVerifyToken());
+        assertThat(subject).isEqualTo(user.getName());
     }
 
     @Test

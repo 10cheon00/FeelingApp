@@ -1,4 +1,4 @@
-package com.feeling.app.util;
+package com.feeling.app.user.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

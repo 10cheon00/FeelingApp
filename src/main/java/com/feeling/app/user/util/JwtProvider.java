@@ -1,4 +1,4 @@
-package com.feeling.app.util;
+package com.feeling.app.user.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;

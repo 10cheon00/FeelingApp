@@ -12,12 +12,10 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final JwtProvider jwtProvider;
 
     @Autowired
-    public UserService(UserRepository userRepository, JwtProvider jwtProvider) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.jwtProvider = jwtProvider;
     }
 
     public List<User> getList() {

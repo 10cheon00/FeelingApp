@@ -1,7 +1,8 @@
 package com.feeling.app.user.controller;
 
 import com.feeling.app.user.entity.User;
-import com.feeling.app.user.service.AuthService;
+import com.feeling.app.user.exception.FormField;
+import com.feeling.app.user.exception.IllegalUserFormException;
 import com.feeling.app.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -9,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 // @Controller는 View를 반환한다. 그런데 Data만 반환해야할 때가 있다.
@@ -37,8 +40,11 @@ public class UserController {
     public ResponseEntity<User> createUser(
             @RequestBody User user
     ) throws Exception {
-        if(userService.getUser(user).isPresent()) {
-            throw new IllegalArgumentException("Already exists username.");
+        if (userService.getUser(user).isPresent()) {
+            ArrayList<FormField> illegalFields = new ArrayList<>();
+            illegalFields.add(new FormField("User name", user.getName()));
+
+            throw new IllegalUserFormException(illegalFields);
         }
         return ResponseEntity
                 .created(URI.create("/api/v1/users"))

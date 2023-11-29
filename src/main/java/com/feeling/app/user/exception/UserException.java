@@ -14,10 +14,11 @@ public class UserException extends ResponseEntityExceptionHandler {
             IllegalUserFormException exception,
             WebRequest request
     ) {
+
         return new ResponseEntity<>(
                 new ErrorResponse(
                         "user creation failed",
-                        ""
+                        exception.getIllegalFields()
                 ),
                 HttpStatus.BAD_REQUEST
         );

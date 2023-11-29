@@ -1,7 +1,10 @@
 package com.feeling.app.user.controller;
 
 import com.feeling.app.user.entity.User;
+import com.feeling.app.user.exception.IllegalUserCredentialException;
+import com.feeling.app.user.exception.NotValidateJwtException;
 import com.feeling.app.user.service.AuthService;
+import com.feeling.app.user.service.UserService;
 import com.feeling.app.user.util.JwtDto;
 import com.feeling.app.user.util.JwtProvider;
 import org.springframework.http.MediaType;
@@ -21,14 +24,14 @@ public class AuthController {
 
     @PostMapping("")
     public ResponseEntity<JwtDto> loginWithNameAndPassword(
-            @RequestBody User user) {
-        if (authService.validate(user.getName(), user.getPassword())) {
-            return ResponseEntity
-                    .ok()
-                    .body(jwtProvider.createJwtDto(user.getName()));
+            @RequestBody User user) throws Exception {
+        if (!authService.validate(user.getName(), user.getPassword())) {
+            throw new IllegalUserCredentialException(user);
         }
-        // todo: 에러 메시지는 한 곳에서 보관하기
-        throw new IllegalArgumentException("not validated");
+
+        return ResponseEntity
+                .ok()
+                .body(jwtProvider.createJwtDto(user.getName()));
     }
 
     @PostMapping("/refresh")
@@ -37,7 +40,7 @@ public class AuthController {
         try {
             jwtProvider.validate(refreshToken);
         } catch (Exception e) {
-            throw new IllegalArgumentException("not validate token");
+            throw new NotValidateJwtException();
         }
 
         String name = jwtProvider.getSubject(refreshToken);

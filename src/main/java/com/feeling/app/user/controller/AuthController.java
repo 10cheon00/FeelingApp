@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/users/login/jwt")
+@RequestMapping("${api.url}/users/login/jwt")
 public class AuthController {
     private final AuthService authService;
     private final JwtProvider jwtProvider;

@@ -18,7 +18,7 @@ import java.util.List;
 // 그럴 때 함수에 @ResponseBody를 사용한다.
 // 귀찮으니까, Data만 반환할 컨트롤러는 @RestController만 써도 된다.
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("${api.url}/users")
 public class UserController {
     private final UserService userService;
 

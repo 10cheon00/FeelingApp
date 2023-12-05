@@ -1,7 +1,7 @@
-drop table if exists Feeling CASCADE;
-DROP TABLE IF EXISTS FeelingType CASCADE;
-drop table if exists User CASCADE;
-create table User
+drop table if exists feeling CASCADE;
+DROP TABLE IF EXISTS feeling_type CASCADE;
+drop table if exists user CASCADE;
+create table user
 (
     id       INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name     VARCHAR(256),
@@ -10,7 +10,7 @@ create table User
     UNIQUE KEY(name)
 );
 
-CREATE TABLE FeelingType
+CREATE TABLE feeling_type
 (
     id   INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(256),
@@ -18,14 +18,14 @@ CREATE TABLE FeelingType
     UNIQUE KEY(name)
 );
 
-CREATE TABLE `Feeling`
+CREATE TABLE feeling
 (
     id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    created_date DATETIME NOT NULL,
+    created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     user_id      INT UNSIGNED NOT NULL,
     type_id      INT UNSIGNED NOT NULL,
     description  VARCHAR(1024),
-    FOREIGN KEY (user_id) REFERENCES User (id) ON DELETE NO ACTION,
-    FOREIGN KEY (type_id) REFERENCES FeelingType (id) ON DELETE NO ACTION,
+    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE NO ACTION,
+    FOREIGN KEY (type_id) REFERENCES feeling_type (id) ON DELETE NO ACTION,
     PRIMARY KEY (id)
 );

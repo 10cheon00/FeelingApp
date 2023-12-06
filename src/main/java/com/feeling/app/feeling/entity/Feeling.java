@@ -1,7 +1,6 @@
 package com.feeling.app.feeling.entity;
 
 import jakarta.persistence.*;
-import org.springframework.context.annotation.Primary;
 
 import java.sql.Timestamp;
 
@@ -19,6 +18,14 @@ public class Feeling {
 
     @Column
     private String description;
+
+    public Feeling() {
+
+    }
+
+    public Feeling(Timestamp createdDate) {
+        this.createdDate = createdDate;
+    }
 
     public Timestamp getCreatedDate() {
         return createdDate;

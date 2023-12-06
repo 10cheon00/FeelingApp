@@ -27,9 +27,9 @@ public class FeelingTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private String feelingURI = "/api/v1/feelings";
+    private final String feelingURI = "/api/v1/feelings";
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void 감정데이터_생성() throws Exception {
@@ -37,11 +37,8 @@ public class FeelingTest {
         System.out.println(feeling.getCreatedDate());
         MvcResult result = requestCreateFeeling(feeling);
 
-        // todo: 시간차 해결하기
-        String createdTimeString = result.getResponse().getContentAsString();
-        Timestamp createdDate = TimestampUtil.createTimestamp(createdTimeString);
-
-        System.out.println(result.getResponse().getContentAsString());
+        Feeling createdFeeling = objectMapper.readValue(result.getResponse().getContentAsString(), Feeling.class);
+        Timestamp createdDate = createdFeeling.getCreatedDate();
 
         assertThat(createdDate.getTime()).isEqualTo(feeling.getCreatedDate().getTime());
     }

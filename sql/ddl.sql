@@ -21,9 +21,9 @@ CREATE TABLE feeling_type
 CREATE TABLE feeling
 (
     id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    user_id      INT UNSIGNED NOT NULL,
-    type_id      INT UNSIGNED NOT NULL,
+    created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    user_id      INT UNSIGNED,
+    type_id      INT UNSIGNED,
     description  VARCHAR(1024),
     FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE NO ACTION,
     FOREIGN KEY (type_id) REFERENCES feeling_type (id) ON DELETE NO ACTION,

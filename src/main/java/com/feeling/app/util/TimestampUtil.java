@@ -8,7 +8,7 @@ import java.util.Date;
 public class TimestampUtil {
     public static Timestamp createTimestamp(String date) {
         try {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-DD");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date createdDate = simpleDateFormat.parse(date);
             return new Timestamp(createdDate.getTime());
         } catch (ParseException e) {

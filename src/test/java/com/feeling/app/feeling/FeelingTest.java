@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest
-@TestPropertySource(locations = "classpath:test.properties")
+@TestPropertySource(locations = "classpath:application.properties")
 @AutoConfigureMockMvc
 @Transactional
 public class FeelingTest {
@@ -34,7 +34,6 @@ public class FeelingTest {
     @Test
     public void 감정데이터_생성() throws Exception {
         Feeling feeling = new Feeling(TimestampUtil.createTimestamp("2010-01-01"));
-        System.out.println(feeling.getCreatedDate());
         MvcResult result = requestCreateFeeling(feeling);
 
         Feeling createdFeeling = objectMapper.readValue(result.getResponse().getContentAsString(), Feeling.class);
@@ -44,8 +43,15 @@ public class FeelingTest {
     }
 
     @Test
-    public void 같은날_중복된_감정데이터_생성_실패() {
+    public void 같은날_중복된_감정데이터_생성_실패() throws Exception {
+        Feeling feeling = new Feeling(TimestampUtil.createTimestamp("2010-01-01"));
+        requestCreateFeeling(feeling);
 
+        // create duplicated feeling on same date.
+        mockMvc.perform(post(feelingURI)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(feeling)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

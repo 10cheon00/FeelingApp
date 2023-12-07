@@ -1,24 +1,28 @@
 package com.feeling.app.feeling.service;
 
 import com.feeling.app.feeling.entity.Feeling;
-import com.feeling.app.feeling.repository.FeelingRepository;
+import com.feeling.app.feeling.exception.DuplicatedDateFeelingException;
+import com.feeling.app.feeling.repository.JpaFeelingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class FeelingService {
-    private final FeelingRepository feelingRepository;
+    private final JpaFeelingRepository jpaFeelingRepository;
 
     @Autowired
-    public FeelingService(FeelingRepository feelingRepository) {
-        this.feelingRepository = feelingRepository;
+    public FeelingService(JpaFeelingRepository feelingRepository) {
+        this.jpaFeelingRepository = feelingRepository;
     }
 
     public Feeling save(Feeling feeling) throws Exception {
-        if (feelingRepository.findByCreatedDate(feeling.getCreatedDate()).isPresent()) {
-            throw new IllegalArgumentException();
+        List<Feeling> list =  jpaFeelingRepository.findByCreatedDate(feeling.getCreatedDate());
+        if (!jpaFeelingRepository.findByCreatedDate(feeling.getCreatedDate()).isEmpty()) {
+            throw new DuplicatedDateFeelingException();
         }
 
-        return feelingRepository.save(feeling);
+        return jpaFeelingRepository.save(feeling);
     }
 }

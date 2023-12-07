@@ -8,6 +8,4 @@ import java.sql.Timestamp;
 import java.util.Optional;
 
 @Repository
-public interface JpaFeelingRepository extends JpaRepository<Feeling, Long> {
-    Optional<Feeling> findByCreatedDate(Timestamp createdDate);
-}
+public interface JpaFeelingRepository extends JpaRepository<Feeling, Long>, FeelingRepository {}

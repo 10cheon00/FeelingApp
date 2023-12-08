@@ -27,6 +27,10 @@ public class Feeling {
         this.createdDate = createdDate;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public Timestamp getCreatedDate() {
         return createdDate;
     }

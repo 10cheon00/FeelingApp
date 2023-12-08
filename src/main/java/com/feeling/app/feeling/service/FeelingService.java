@@ -25,4 +25,8 @@ public class FeelingService {
 
         return jpaFeelingRepository.save(feeling);
     }
+
+    public List<Feeling> findAll() {
+        return jpaFeelingRepository.findAll();
+    }
 }

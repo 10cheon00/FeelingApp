@@ -4,9 +4,13 @@ import com.feeling.app.feeling.entity.Feeling;
 import com.feeling.app.feeling.exception.DuplicatedDateFeelingException;
 import com.feeling.app.feeling.repository.JpaFeelingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
+import static com.feeling.app.feeling.service.FeelingSpecifications.*;
 
 @Service
 public class FeelingService {
@@ -18,16 +22,32 @@ public class FeelingService {
     }
 
     public Feeling save(Feeling feeling) throws Exception {
-        // todo: filter by year, month, day
-//        List<Feeling> list =  jpaFeelingRepository.findByCreatedDate(feeling.getCreatedDate());
-//        if (!jpaFeelingRepository.findByCreatedDate(feeling.getCreatedDate()).isEmpty()) {
-//            throw new DuplicatedDateFeelingException();
-//        }
+        Optional<Feeling> result = jpaFeelingRepository.findOne(
+                (root, query, criteriaBuilder) -> criteriaBuilder.equal(
+                        root.get("createdDate"),
+                        feeling.getCreatedDate()));
 
+        if (result.isPresent()) {
+            throw new DuplicatedDateFeelingException();
+        }
         return jpaFeelingRepository.save(feeling);
     }
 
-    public List<Feeling> findAll() {
-        return jpaFeelingRepository.findAll();
+    public List<Feeling> findAll(
+            Optional<Integer> year,
+            Optional<Integer> month,
+            Optional<Integer> day) {
+        Specification<Feeling> spec = Specification.where(null);
+        if(year.isPresent()) {
+            spec = spec.and(IsYearEqualTo(year.get()));
+        }
+        if(month.isPresent()) {
+            spec = spec.and(IsMonthEqualTo(month.get()));
+        }
+        if(day.isPresent()) {
+            spec = spec.and(IsDayEqualTo(day.get()));
+        }
+
+        return jpaFeelingRepository.findAll(spec);
     }
 }

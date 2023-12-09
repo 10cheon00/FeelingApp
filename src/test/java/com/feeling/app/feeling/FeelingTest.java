@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -33,8 +34,9 @@ public class FeelingTest {
     private final String feelingURI = "/api/v1/feelings";
 
     private final ObjectMapper objectMapper;
-
-    private final TypeReference<List<Feeling>> FeelingListType = new TypeReference<List<Feeling>>() {};
+    private final TypeReference<List<Feeling>> FeelingListType = new TypeReference<List<Feeling>>() {
+    };
+    private final List<Feeling> feelingList;
 
     @Autowired
     public FeelingTest(MockMvc mockMvc) {
@@ -43,6 +45,19 @@ public class FeelingTest {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        feelingList = new ArrayList<>();
+        Integer[][] dateFormat = new Integer[][]{
+                {2010, 1, 1},
+                {2010, 2, 1},
+                {2010, 2, 2},
+                {2011, 1, 1},
+                {2011, 1, 2},
+        };
+        for (Integer[] format : dateFormat) {
+            feelingList.add(new Feeling(
+                    LocalDate.of(format[0], format[1], format[2])));
+        }
     }
 
     @Test
@@ -53,7 +68,6 @@ public class FeelingTest {
         Feeling createdFeeling = objectMapper.readValue(result.getResponse().getContentAsString(), Feeling.class);
         LocalDate createdDate = createdFeeling.getCreatedDate();
 
-        // todo: 정말로 같은지 확인하는 코드인지 의심
         assertThat(createdDate).isEqualTo(feeling.getCreatedDate());
     }
 
@@ -62,7 +76,7 @@ public class FeelingTest {
         Feeling feeling = new Feeling(LocalDate.of(2010, 1, 1));
         requestCreateFeeling(feeling);
 
-        // create duplicated feeling on same date.
+        // request to create same date feeling data.
         mockMvc.perform(post(feelingURI)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(feeling)))
@@ -71,45 +85,81 @@ public class FeelingTest {
 
     @Test
     public void 감정데이터_조회() throws Exception {
-        MvcResult result = mockMvc.perform(get(feelingURI))
+        // return 0 item
+        mockMvc.perform(get(feelingURI))
                 .andExpect(status().isOk())
-                .andReturn();
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(0));
 
-        List<Feeling> createdFeelingList = objectMapper.readValue(
-                result.getResponse().getContentAsString(), FeelingListType);
+        // create 5 items
+        requestCreateFeelingList();
 
-        assertThat(createdFeelingList.size()).isEqualTo(0);
-
-        List<Feeling> feelingList = new ArrayList<>();
-        feelingList.add(new Feeling(LocalDate.of(2010, 1, 1)));
-        feelingList.add(new Feeling(LocalDate.of(2010, 1, 2)));
-        for(Feeling feeling : feelingList) {
-            requestCreateFeeling(feeling);
-        }
-
-        result = mockMvc.perform(get(feelingURI))
+        // return 2 items
+        mockMvc.perform(get(feelingURI))
                 .andExpect(status().isOk())
-                .andReturn();
-
-        createdFeelingList = objectMapper.readValue(
-                result.getResponse().getContentAsString(), FeelingListType);
-
-        assertThat(createdFeelingList.size()).isEqualTo(feelingList.size());
-
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(5));
     }
 
     @Test
-    public void 감정데이터_연도별_조회() {
+    public void 감정데이터_연도별_조회() throws Exception {
+        // create 5 items
+        requestCreateFeelingList();
 
+        // get 3 items of year 2010.
+        mockMvc.perform(get(feelingURI).param("year", "2010"))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(3));
+
+        // get 2 items of year 2011.
+        mockMvc.perform(get(feelingURI).param("year", "2011"))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(2));
+    }
+
+
+    @Test
+    public void 감정데이터_월별_조회() throws Exception {
+        // create 5 items
+        requestCreateFeelingList();
+
+        // get 3 items of month 1.
+        mockMvc.perform(get(feelingURI).param("month", "1"))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(3));
+
+        // get 2 items of month 2.
+        mockMvc.perform(get(feelingURI).param("month", "2"))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(2));
     }
 
     @Test
-    public void 감정데이터_월별_조회() {
+    public void 감정데이터_일별_조회() throws Exception {
+        // create 5 items
+        requestCreateFeelingList();
 
+        // get 3 items of day 1.
+        mockMvc.perform(get(feelingURI).param("day", "1"))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(3));
+
+        // get 2 items of day 2.
+        mockMvc.perform(get(feelingURI).param("day", "2"))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(2));
     }
 
     @Test
-    public void 감정데이터_일별_조회() {
+    public void 감정데이터_특정년월일_조회() throws Exception {
+        // create 5 items
+        requestCreateFeelingList();
+
+        // get 1 item of 2011-01-01.
+        mockMvc.perform(get(feelingURI)
+                        .param("year", "2010")
+                        .param("month", "1")
+                        .param("day", "1"))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(1));
 
     }
 
@@ -122,6 +172,13 @@ public class FeelingTest {
     public void 감정데이터_삭제() {
 
     }
+
+    private void requestCreateFeelingList() throws Exception {
+        for (Feeling feeling : feelingList) {
+            requestCreateFeeling(feeling);
+        }
+    }
+
 
     private MvcResult requestCreateFeeling(Feeling feeling) throws Exception {
         return mockMvc.perform(post(feelingURI)

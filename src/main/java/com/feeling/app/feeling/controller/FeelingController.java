@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("${api.url}/feelings")
@@ -23,8 +24,14 @@ public class FeelingController {
 
     @GetMapping("")
     public ResponseEntity<List<Feeling>> get(
-            HttpServletRequest request) {
-        List<Feeling> feelingList = feelingService.findAll();
+            HttpServletRequest request,
+            @RequestParam(value = "year", required = false) Integer year,
+            @RequestParam(value = "month", required = false) Integer month,
+            @RequestParam(value = "day", required = false) Integer day) {
+        List<Feeling> feelingList = feelingService.findAll(
+                Optional.ofNullable(year),
+                Optional.ofNullable(month),
+                Optional.ofNullable(day));
 
         return ResponseEntity.ok().body(feelingList);
     }

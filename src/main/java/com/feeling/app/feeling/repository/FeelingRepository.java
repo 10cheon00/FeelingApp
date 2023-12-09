@@ -7,5 +7,4 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public interface FeelingRepository {
-    public List<Feeling> findByCreatedDate(@Param("createdDate") Timestamp createdDate);
 }

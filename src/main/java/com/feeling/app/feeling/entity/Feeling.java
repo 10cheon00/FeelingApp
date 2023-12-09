@@ -3,6 +3,7 @@ package com.feeling.app.feeling.entity;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 
 @Entity
 public class Feeling {
@@ -11,7 +12,7 @@ public class Feeling {
     private Long id;
 
     @Column
-    private Timestamp createdDate;
+    private LocalDate createdDate;
 
     @Column
     private Long userId;
@@ -19,11 +20,13 @@ public class Feeling {
     @Column
     private String description;
 
-    public Feeling() {
+    @Column
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Timestamp createdTimestamp;
 
-    }
+    public Feeling() { }
 
-    public Feeling(Timestamp createdDate) {
+    public Feeling(LocalDate createdDate) {
         this.createdDate = createdDate;
     }
 
@@ -31,7 +34,8 @@ public class Feeling {
         return id;
     }
 
-    public Timestamp getCreatedDate() {
+
+    public LocalDate getCreatedDate() {
         return createdDate;
     }
 }

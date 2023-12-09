@@ -2,8 +2,9 @@ package com.feeling.app.feeling;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.feeling.app.feeling.entity.Feeling;
-import com.feeling.app.util.TimestampUtil;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,29 +28,38 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc
 @Transactional
 public class FeelingTest {
-    @Autowired
-    private MockMvc mockMvc;
+    private final MockMvc mockMvc;
 
     private final String feelingURI = "/api/v1/feelings";
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     private final TypeReference<List<Feeling>> FeelingListType = new TypeReference<List<Feeling>>() {};
 
+    @Autowired
+    public FeelingTest(MockMvc mockMvc) {
+        this.mockMvc = mockMvc;
+
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
+
     @Test
     public void 감정데이터_생성() throws Exception {
-        Feeling feeling = new Feeling(TimestampUtil.createTimestamp("2010-01-01"));
+        Feeling feeling = new Feeling(LocalDate.of(2010, 1, 1));
         MvcResult result = requestCreateFeeling(feeling);
 
         Feeling createdFeeling = objectMapper.readValue(result.getResponse().getContentAsString(), Feeling.class);
-        Timestamp createdDate = createdFeeling.getCreatedDate();
+        LocalDate createdDate = createdFeeling.getCreatedDate();
 
-        assertThat(createdDate.getTime()).isEqualTo(feeling.getCreatedDate().getTime());
+        // todo: 정말로 같은지 확인하는 코드인지 의심
+        assertThat(createdDate).isEqualTo(feeling.getCreatedDate());
     }
 
     @Test
     public void 같은날_중복된_감정데이터_생성_실패() throws Exception {
-        Feeling feeling = new Feeling(TimestampUtil.createTimestamp("2010-01-01"));
+        Feeling feeling = new Feeling(LocalDate.of(2010, 1, 1));
         requestCreateFeeling(feeling);
 
         // create duplicated feeling on same date.
@@ -71,8 +81,8 @@ public class FeelingTest {
         assertThat(createdFeelingList.size()).isEqualTo(0);
 
         List<Feeling> feelingList = new ArrayList<>();
-        feelingList.add(new Feeling(TimestampUtil.createTimestamp("2010-01-01")));
-        feelingList.add(new Feeling(TimestampUtil.createTimestamp("2010-01-02")));
+        feelingList.add(new Feeling(LocalDate.of(2010, 1, 1)));
+        feelingList.add(new Feeling(LocalDate.of(2010, 1, 2)));
         for(Feeling feeling : feelingList) {
             requestCreateFeeling(feeling);
         }

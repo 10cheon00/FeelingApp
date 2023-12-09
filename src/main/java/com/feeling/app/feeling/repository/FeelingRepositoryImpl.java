@@ -22,11 +22,4 @@ public class FeelingRepositoryImpl implements FeelingRepository {
     public FeelingRepositoryImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
-
-    public List<Feeling> findByCreatedDate(@Param("createdDate") Timestamp createdTimestamp) {
-        Date createdDate = new Date(createdTimestamp.getTime());
-
-        return entityManager.createQuery("SELECT f FROM Feeling f WHERE date(f.createdDate) = :createdDate", Feeling.class)
-                        .setParameter("createdDate", createdDate).getResultList();
-    }
 }

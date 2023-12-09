@@ -18,10 +18,11 @@ public class FeelingService {
     }
 
     public Feeling save(Feeling feeling) throws Exception {
-        List<Feeling> list =  jpaFeelingRepository.findByCreatedDate(feeling.getCreatedDate());
-        if (!jpaFeelingRepository.findByCreatedDate(feeling.getCreatedDate()).isEmpty()) {
-            throw new DuplicatedDateFeelingException();
-        }
+        // todo: filter by year, month, day
+//        List<Feeling> list =  jpaFeelingRepository.findByCreatedDate(feeling.getCreatedDate());
+//        if (!jpaFeelingRepository.findByCreatedDate(feeling.getCreatedDate()).isEmpty()) {
+//            throw new DuplicatedDateFeelingException();
+//        }
 
         return jpaFeelingRepository.save(feeling);
     }
